@@ -158,7 +158,20 @@ void VulkanEngine::init_commands()
 
 void VulkanEngine::init_sync_structures()
 {
+    // Create sync structures
+    // One fence to control when the GPU has finished rendering the frame, 
+    // two semaphores to synchronize rendering with swapchain.
+    // We want the fence to start signalled so we can wait on it on the first frame
 
+    VkFenceCreateInfo fenceCreateInfo = vkinit::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT);
+    VkSemaphoreCreateInfo semaphoreCreateInfo = vkinit::semaphore_create_info();
+
+    for (int i = 0; i < FRAME_OVERLAP; i++) {
+        VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr, &_frames[i]._renderFence));
+
+        VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_frames[i]._swapchainSemaphore));
+        VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_frames[i]._renderSemaphore));
+    }
 }
 
 void VulkanEngine::cleanup()
