@@ -68,6 +68,9 @@ public:
 
 	VmaAllocator _allocator;
 
+	AllocatedImage _drawImage;
+	VkExtent2D _drawExtent;
+
 
 	//initializes everything in the engine
 	void init();
