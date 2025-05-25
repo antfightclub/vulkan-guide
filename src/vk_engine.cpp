@@ -7,12 +7,17 @@
 #include <vk_initializers.h>
 #include <vk_types.h>
 
+#include "VkBootstrap.h"
+
 #include <chrono>
 #include <thread>
 
 VulkanEngine* loadedEngine = nullptr;
 
 VulkanEngine& VulkanEngine::Get() { return *loadedEngine; }
+
+constexpr bool bUseValidationLayers = false;
+
 void VulkanEngine::init()
 {
     // only one engine initialization is allowed with the application.
@@ -32,8 +37,36 @@ void VulkanEngine::init()
         _windowExtent.height,
         window_flags);
 
+    init_vulkan();
+
+    init_swapchain();
+
+    init_commands();
+
+    init_sync_structures();
+
     // everything went fine
     _isInitialized = true;
+}
+
+void VulkanEngine::init_vulkan()
+{
+
+}
+
+void VulkanEngine::init_swapchain()
+{
+
+}
+
+void VulkanEngine::init_commands()
+{
+
+}
+
+void VulkanEngine::init_sync_structures()
+{
+
 }
 
 void VulkanEngine::cleanup()
