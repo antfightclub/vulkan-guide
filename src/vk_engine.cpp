@@ -98,6 +98,10 @@ void VulkanEngine::init_vulkan()
     _device = vkbDevice.device;
     _chosenGPU = physicalDevice.physical_device;
 
+    // use VkBootstrap to get a Graphics queue
+    _graphicsQueue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
+    _graphicsQueueFamily = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
+
 }
 
 void VulkanEngine::create_swapchain(uint32_t width, uint32_t height) {
