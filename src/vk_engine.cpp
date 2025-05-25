@@ -164,6 +164,13 @@ void VulkanEngine::init_sync_structures()
 void VulkanEngine::cleanup()
 {
     if (_isInitialized) {
+        // Make sure the GPU has stopped doing whatever it is doing
+        vkDeviceWaitIdle(_device);
+
+        for (int i = 0; i < FRAME_OVERLAP; i++) {
+            vkDestroyCommandPool(_device, _frames[i]._commandPool, nullptr);
+        }
+
         destroy_swapchain();
 
         vkDestroySurfaceKHR(_instance, _surface, nullptr);
