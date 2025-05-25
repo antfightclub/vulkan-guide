@@ -51,7 +51,20 @@ void VulkanEngine::init()
 
 void VulkanEngine::init_vulkan()
 {
+    vkb::InstanceBuilder builder;
 
+    // Make a vulkan instance with basic debug features
+    auto inst_ret = builder.set_app_name("Mona Vulkan Application")
+        .request_validation_layers(bUseValidationLayers)
+        .use_default_debug_messenger()
+        .require_api_version(1, 3, 0)
+        .build();
+
+    vkb::Instance vkb_inst = inst_ret.value();
+
+    // grab the instance
+    _instance = vkb_inst.instance;
+    _debug_messenger = vkb_inst.debug_messenger;
 }
 
 void VulkanEngine::init_swapchain()
