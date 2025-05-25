@@ -66,6 +66,8 @@ public:
 
 	DeletionQueue _mainDeletionQueue;
 
+	VmaAllocator _allocator;
+
 
 	//initializes everything in the engine
 	void init();
