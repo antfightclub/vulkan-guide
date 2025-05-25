@@ -181,6 +181,7 @@ void VulkanEngine::cleanup()
         // Make sure the GPU has stopped doing whatever it is doing
         vkDeviceWaitIdle(_device);
 
+        // Free per-frame structures and deletion queue
         for (int i = 0; i < FRAME_OVERLAP; i++) {
             vkDestroyCommandPool(_device, _frames[i]._commandPool, nullptr);
 
@@ -188,7 +189,12 @@ void VulkanEngine::cleanup()
             vkDestroyFence(_device, _frames[i]._renderFence, nullptr);
             vkDestroySemaphore(_device, _frames[i]._renderSemaphore, nullptr);
             vkDestroySemaphore(_device, _frames[i]._swapchainSemaphore, nullptr);
+
+            _frames[i]._deletionQueue.flush();
         }
+
+        // Flush the global deletion queue
+        _mainDeletionQueue.flush();
 
         destroy_swapchain();
 
@@ -208,6 +214,8 @@ void VulkanEngine::draw()
 {
     // Wait until the GPU has finished rendering the last frame. Time out of 1 second
     VK_CHECK(vkWaitForFences(_device, 1, &get_current_frame()._renderFence, true, 1000000000));
+
+    get_current_frame()._deletionQueue.flush();
     VK_CHECK(vkResetFences(_device, 1, &get_current_frame()._renderFence));
 
     // Request an image from the swapchain
