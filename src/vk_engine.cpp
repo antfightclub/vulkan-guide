@@ -11,7 +11,8 @@
 #include <chrono>
 #include <thread>
 
-#define VKA_IMPLEMENTATION
+//#define VKA_IMPLEMENTATION <-- typo
+#define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 #include <vk_images.h>
 
