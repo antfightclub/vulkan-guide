@@ -13,7 +13,7 @@ void DescriptorLayoutBuilder::clear() {
 	bindings.clear();
 }
 
-VkDescriptorSetLayout DescriptorLayoutBuilder::build(VkDevice device, VkShaderStageFlags shaderStages, void* pNext = nullptr, VkDescriptorSetLayoutCreateFlags flags = 0) {
+VkDescriptorSetLayout DescriptorLayoutBuilder::build(VkDevice device, VkShaderStageFlags shaderStages, void* pNext, VkDescriptorSetLayoutCreateFlags flags) {
 	for (auto& b : bindings) {
 		b.stageFlags |= shaderStages;
 	}
