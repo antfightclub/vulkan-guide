@@ -584,6 +584,9 @@ void VulkanEngine::run()
                     stop_rendering = false;
                 }
             }
+
+            // Send SDL event to IMGUI for handling
+            ImGui_ImplSDL2_ProcessEvent(&e);
         }
 
         // do not draw if we are minimized
@@ -592,6 +595,16 @@ void VulkanEngine::run()
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
+
+        ImGui_ImplVulkan_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+
+        // some imgui UI to test
+        ImGui::ShowDemoWindow(); 
+
+        // Make ImGui calculate internal draw structures
+        ImGui::Render();
 
         draw();
     }
