@@ -674,10 +674,10 @@ void VulkanEngine::run()
 
             ImGui::SliderInt("Effect Index", &currentBackgroundEffect, 0, backgroundEffects.size() - 1);
 
-            ImGui::InputFloat4("data1", (float*)&selected.data.data1);
-            ImGui::InputFloat4("data2", (float*)&selected.data.data2);
-            ImGui::InputFloat4("data3", (float*)&selected.data.data3);
-            ImGui::InputFloat4("data4", (float*)&selected.data.data4);
+            ImGui::SliderFloat4("data1", (float*)&selected.data.data1, 0.0, 1.0);
+            ImGui::SliderFloat4("data2", (float*)&selected.data.data2, 0.0, 1.0);
+            ImGui::SliderFloat4("data3", (float*)&selected.data.data3, 0.0, 1.0);
+            ImGui::SliderFloat4("data4", (float*)&selected.data.data4, 0.0, 1.0);
         }
         ImGui::End();
 
