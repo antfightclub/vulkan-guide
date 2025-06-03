@@ -107,6 +107,11 @@ public:
 	VkPipelineLayout _trianglePipelineLayout;
 	VkPipeline _trianglePipeline;
 
+	VkPipelineLayout _meshPipelineLayout;
+	VkPipeline _meshPipeline;
+
+	GPUMeshBuffers rectangle;
+
 	//initializes everything in the engine
 	void init();
 
@@ -141,7 +146,9 @@ private:
 	void init_pipelines();
 	void init_background_pipelines();
 	void init_triangle_pipeline();
+	void init_mesh_pipeline();
 	void init_imgui();
+	void init_default_data();
 
 	void create_swapchain(uint32_t width, uint32_t height);
 	void destroy_swapchain();
