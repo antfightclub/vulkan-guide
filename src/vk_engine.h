@@ -125,6 +125,11 @@ public:
 	// Immediate submission of draw cmds
 	void immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function);
 
+	AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+
+	void destroy_buffer(const AllocatedBuffer& buffer);
+
+
 private:
 	void init_vulkan();
 	void init_swapchain();
