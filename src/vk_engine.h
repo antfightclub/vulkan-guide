@@ -5,6 +5,7 @@
 
 #include <vk_types.h>
 #include <vk_descriptors.h>
+#include <vk_loader.h>
 
 struct ComputePushConstants {
 	glm::vec4 data1;
@@ -86,6 +87,7 @@ public:
 	VmaAllocator _allocator;
 
 	AllocatedImage _drawImage;
+	AllocatedImage _depthImage;
 	VkExtent2D _drawExtent;
 
 	DescriptorAllocator globalDescriptorAllocator;
@@ -104,13 +106,12 @@ public:
 	std::vector<ComputeEffect> backgroundEffects;
 	int currentBackgroundEffect{ 0 };
 
-	VkPipelineLayout _trianglePipelineLayout;
-	VkPipeline _trianglePipeline;
-
 	VkPipelineLayout _meshPipelineLayout;
 	VkPipeline _meshPipeline;
 
 	GPUMeshBuffers rectangle;
+
+	std::vector<std::shared_ptr<MeshAsset>> testMeshes;
 
 	//initializes everything in the engine
 	void init();
@@ -145,7 +146,6 @@ private:
 	void init_descriptors();
 	void init_pipelines();
 	void init_background_pipelines();
-	void init_triangle_pipeline();
 	void init_mesh_pipeline();
 	void init_imgui();
 	void init_default_data();
