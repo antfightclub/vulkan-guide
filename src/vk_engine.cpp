@@ -451,8 +451,9 @@ void VulkanEngine::init_mesh_pipeline() {
     pipelineBuilder.set_cull_mode(VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
     //no multisampling
     pipelineBuilder.set_multisampling_none();
-    //no blending
-    pipelineBuilder.disable_blending();
+
+    //pipelineBuilder.disable_blending();
+    pipelineBuilder.enable_blending_additive();
 
     //pipelineBuilder.disable_depthtest();
     pipelineBuilder.enable_depthtest(true, VK_COMPARE_OP_GREATER_OR_EQUAL);
