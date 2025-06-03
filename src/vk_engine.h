@@ -129,6 +129,8 @@ public:
 
 	void destroy_buffer(const AllocatedBuffer& buffer);
 
+	GPUMeshBuffers upload_mesh(std::span<uint32_t> indices, std::span<Vertex> vertices);
+
 
 private:
 	void init_vulkan();
