@@ -24,6 +24,13 @@
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
 
+// pRenderingInfo->pColorAttachment->imageView width is 1700 so less than pRenderingInfo->renderArea.offset.x + pRenderingInfo->renderArea.extent.width is 1840..
+// pRenderingInfo->pDepthAttachment->imageView width is 1700 so less than pRenderingInfo->renderArea.offset.x + pRenderingInfo->renderArea.extent.width is 1840..
+// It seems I forget to update the size of the depth and color attachments?
+
+// Additionally there are some issues with the signal semaphore for the vkQueueSubmit2 for whatever reason... This could be the cause of the crash
+
+
 VulkanEngine* loadedEngine = nullptr;
 
 VulkanEngine& VulkanEngine::Get() { return *loadedEngine; }
