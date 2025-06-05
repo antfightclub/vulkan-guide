@@ -58,6 +58,7 @@ public:
 	bool stop_rendering{ false };
 	bool resize_requested{ false };
 	VkExtent2D _windowExtent{ 1700 , 900 };
+	VkExtent2D _largestExtent{ 2560 , 1440 };
 
 	struct SDL_Window* _window{ nullptr };
 

@@ -24,13 +24,6 @@
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
 
-// pRenderingInfo->pColorAttachment->imageView width is 1700 so less than pRenderingInfo->renderArea.offset.x + pRenderingInfo->renderArea.extent.width is 1840..
-// pRenderingInfo->pDepthAttachment->imageView width is 1700 so less than pRenderingInfo->renderArea.offset.x + pRenderingInfo->renderArea.extent.width is 1840..
-// It seems I forget to update the size of the depth and color attachments?
-
-// Additionally there are some issues with the signal semaphore for the vkQueueSubmit2 for whatever reason... This could be the cause of the crash
-
-
 VulkanEngine* loadedEngine = nullptr;
 
 VulkanEngine& VulkanEngine::Get() { return *loadedEngine; }
@@ -185,10 +178,14 @@ void VulkanEngine::init_swapchain()
 {
     create_swapchain(_windowExtent.width, _windowExtent.height);
 
-    // Draw image size will match the window
+    //  The draw image used to be hardcoded 1700x900 but it would crash if resizing window to above this res 
+    //  Fix it by making the draw image larger than the window and just using part of the draw image to render...
+    //  It's not a pretty fix, but it does the job here. "_largestExtent" is set to 2560x1440, the resolution
+    //  of my main desktop monitor... but this might make the laptop work harder than needed.
+    //  At some point will need to implement a more robust and dynamic resizing system.
     VkExtent3D drawImageExtent = {
-        _windowExtent.width,
-        _windowExtent.height,
+        _largestExtent.width,
+        _largestExtent.height,
         1
     };
 
