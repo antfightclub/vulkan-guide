@@ -61,22 +61,6 @@ struct GPUSceneData {
 	glm::vec4 sunlightColor;
 };
 
-enum class MaterialPass :uint8_t {
-	MainColor,
-	Transparent,
-	Other
-};
-struct MaterialPipeline {
-	VkPipeline pipeline;
-	VkPipelineLayout layout;
-};
-
-struct MaterialInstance {
-	MaterialPipeline* pipeline;
-	VkDescriptorSet materialSet;
-	MaterialPass passType;
-};
-
 struct GLTFMetallic_Roughness {
 	MaterialPipeline opaquePipeline;
 	MaterialPipeline transparentPipeline;
@@ -119,6 +103,15 @@ struct RenderObject {
 	VkDeviceAddress vertexBufferAddress;
 };
 
+struct DrawContext {
+	std::vector<RenderObject> OpaqueSurfaces;
+};
+
+struct MeshNode : public Node {
+	std::shared_ptr<MeshAsset> mesh;
+
+	virtual void Draw(const glm::mat4& topMatrix, DrawContext& ctx) override;
+};
 
 constexpr unsigned int FRAME_OVERLAP = 2;
 
@@ -202,6 +195,9 @@ public:
 	MaterialInstance defaultData;
 	GLTFMetallic_Roughness metalRoughMaterial;
 
+	DrawContext mainDrawContext;
+	std::unordered_map<std::string, std::shared_ptr<Node>> loadedNodes;
+
 	//initializes everything in the engine
 	void init();
 
@@ -213,6 +209,8 @@ public:
 	void draw_background(VkCommandBuffer cmd);
 	void draw_geometry(VkCommandBuffer cmd);
 	void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView);
+
+	void update_scene();
 
 	//run main loop
 	void run();
