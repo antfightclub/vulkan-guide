@@ -704,6 +704,8 @@ void VulkanEngine::cleanup()
             destroy_buffer(mesh->meshBuffers.vertexBuffer);
         }
 
+        metalRoughMaterial.clear_resources(_device);
+
         // Flush the global deletion queue
         _mainDeletionQueue.flush();
 
