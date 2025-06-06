@@ -106,6 +106,15 @@ public:
 	VkExtent2D _drawExtent;
 	float renderScale = 1.f;
 
+	// Test images
+	AllocatedImage _whiteImage;
+	AllocatedImage _blackImage;
+	AllocatedImage _greyImage;
+	AllocatedImage _errorCheckerboardImage;
+	
+	VkSampler _defaultSamplerLinear;
+	VkSampler _defaultSamplerNearest;
+
 	DescriptorAllocator globalDescriptorAllocator;
 
 	VkDescriptorSet _drawImageDescriptors;
@@ -154,6 +163,9 @@ public:
 
 	GPUMeshBuffers upload_mesh(std::span<uint32_t> indices, std::span<Vertex> vertices);
 
+	AllocatedImage create_image(VkExtent3D size, VkFormat format, VkImageUsageFlags usage, bool mipmapped = false);
+	AllocatedImage create_image(void* data, VkExtent3D size, VkFormat format, VkImageUsageFlags usage, bool mipmapped = false);
+	void destroy_image(const AllocatedImage& img);
 
 private:
 	void init_vulkan();
