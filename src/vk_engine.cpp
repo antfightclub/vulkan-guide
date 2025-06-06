@@ -681,7 +681,6 @@ void VulkanEngine::draw()
     VkSubmitInfo2 submit = vkinit::submit_info(&cmdInfo, &signalInfo, &waitInfo);
 
   
-    // !!! This is what's causing the error! 
     // Submit command buffer to the queue and execute it
     // _renderFence will now block until the graphic commands finish execution
     VK_CHECK(vkQueueSubmit2(_graphicsQueue, 1, &submit, get_current_frame()._renderFence));
