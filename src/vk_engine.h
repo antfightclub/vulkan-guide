@@ -115,6 +115,14 @@ struct MeshNode : public Node {
 	virtual void Draw(const glm::mat4& topMatrix, DrawContext& ctx) override;
 };
 
+struct EngineStats {
+	float frametime;
+	int triangle_count;
+	int drawcall_count;
+	float scene_update_time;
+	float mesh_draw_time;
+};
+
 constexpr unsigned int FRAME_OVERLAP = 2;
 
 class VulkanEngine {
@@ -129,6 +137,9 @@ public:
 	struct SDL_Window* _window{ nullptr };
 
 	static VulkanEngine& Get();
+
+	EngineStats stats;
+
 
 	VkInstance _instance;
 	VkDebugUtilsMessengerEXT _debug_messenger;
