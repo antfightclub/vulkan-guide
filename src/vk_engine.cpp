@@ -65,6 +65,11 @@ void VulkanEngine::init()
     
     init_default_data();
 
+    mainCamera.velocity = glm::vec3(0.f);
+    mainCamera.position = glm::vec3(0, 0, 5);
+    mainCamera.pitch = 0;
+    mainCamera.yaw = 0;
+
     // everything went fine
     _isInitialized = true;
 }
@@ -1114,19 +1119,24 @@ void VulkanEngine::destroy_image(const AllocatedImage& img)
 
 void VulkanEngine::update_scene()
 {
+    mainCamera.update();
+
+    glm::mat4 view = mainCamera.getViewMatrix();
+    
+    // Camera projection
+    glm::mat4 projection = glm::perspective(glm::radians(70.f), (float)_windowExtent.width / (float)_windowExtent.height, 10000.f, 0.1f);
+
+    // Invert the Y direction on projection matrix so that we are more similar to OpenGL and GLTF axis.
+    projection[1][1] *= -1;
+
     mainDrawContext.OpaqueSurfaces.clear();
 
     loadedNodes["Suzanne"]->Draw(glm::mat4{ 1.f }, mainDrawContext);
 
-    sceneData.view = glm::translate(glm::vec3{ 0,0,-5 });
-    // camera projection
-    sceneData.proj = glm::perspective(glm::radians(70.f), (float)_windowExtent.width / (float)_windowExtent.height, 10000.f, 0.1f);
-
-    // invert the Y direction on projection matrix so that we are more similar
-    // to opengl and gltf axis
-    sceneData.proj[1][1] *= -1;
-    sceneData.viewproj = sceneData.proj * sceneData.view;
-
+    sceneData.view = view;
+    sceneData.proj = projection;
+    sceneData.viewproj = projection * view;
+  
     //some default lighting parameters
     sceneData.ambientColor = glm::vec4(.1f);
     sceneData.sunlightColor = glm::vec4(1.f);
@@ -1153,6 +1163,9 @@ void VulkanEngine::run()
             // close the window when user alt-f4s or clicks the X button
             if (e.type == SDL_QUIT)
                 bQuit = true;
+            
+            mainCamera.processSDLEvent(e);
+            ImGui_ImplSDL2_ProcessEvent(&e);
 
             if (e.type == SDL_WINDOWEVENT) {
                 if (e.window.event == SDL_WINDOWEVENT_MINIMIZED) {

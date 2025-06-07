@@ -6,6 +6,7 @@
 #include <vk_types.h>
 #include <vk_descriptors.h>
 #include <vk_loader.h>
+#include <camera.h>
 
 struct ComputePushConstants {
 	glm::vec4 data1;
@@ -197,6 +198,8 @@ public:
 
 	DrawContext mainDrawContext;
 	std::unordered_map<std::string, std::shared_ptr<Node>> loadedNodes;
+
+	Camera mainCamera;
 
 	//initializes everything in the engine
 	void init();
