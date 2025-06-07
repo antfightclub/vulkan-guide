@@ -255,8 +255,9 @@ private:
 	void init_pipelines();
 	void init_background_pipelines();
 	void init_mesh_pipeline();
-	void init_imgui();
 	void init_default_data();
+	void init_renderables();
+	void init_imgui();
 
 	void create_swapchain(uint32_t width, uint32_t height);
 	void resize_swapchain();

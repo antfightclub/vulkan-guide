@@ -32,11 +32,11 @@ constexpr bool bUseValidationLayers = true;
 
 void VulkanEngine::init()
 {
-    // only one engine initialization is allowed with the application.
+    // Only one engine initialization is allowed with the application
     assert(loadedEngine == nullptr);
     loadedEngine = this;
 
-    // We initialize SDL and create a window with it.
+    // Initialize SDL and create a window with it.
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
@@ -60,22 +60,18 @@ void VulkanEngine::init()
     init_descriptors();
     
     init_pipelines();
+   
+    init_default_data();
+
+    init_renderables();
 
     init_imgui();
     
-    init_default_data();
 
     mainCamera.velocity = glm::vec3(0.f);
     mainCamera.position = glm::vec3(30.f, -00.f, -085.f);
     mainCamera.pitch = 0;
     mainCamera.yaw = 0;
-
-    std::string structurePath = { "..\\..\\assets\\structure.glb" };
-    auto structureFile = loadGltf(this, structurePath);
-
-    assert(structureFile.has_value());
-
-    loadedScenes["structure"] = *structureFile;
 
     // everything went fine
     _isInitialized = true;
@@ -302,17 +298,28 @@ void VulkanEngine::init_sync_structures()
     // We want the fence to start signalled so we can wait on it on the first frame
 
     VkFenceCreateInfo fenceCreateInfo = vkinit::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT);
-    VkSemaphoreCreateInfo semaphoreCreateInfo = vkinit::semaphore_create_info();
+    VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr, &_immFence));
+
+    _mainDeletionQueue.push_function([=]() { vkDestroyFence(_device, _immFence, nullptr);  });
+
+   
 
     for (int i = 0; i < FRAME_OVERLAP; i++) {
         VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr, &_frames[i]._renderFence));
 
+        VkSemaphoreCreateInfo semaphoreCreateInfo = vkinit::semaphore_create_info();
+
         VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_frames[i]._swapchainSemaphore));
         VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_frames[i]._renderSemaphore));
+
+        _mainDeletionQueue.push_function([=]() {
+            vkDestroyFence(_device, _frames[i]._renderFence, nullptr);
+            vkDestroySemaphore(_device, _frames[i]._swapchainSemaphore, nullptr);
+            vkDestroySemaphore(_device, _frames[i]._renderSemaphore, nullptr);
+            });
     }
 
-    VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr, &_immFence));
-    _mainDeletionQueue.push_function([=]() { vkDestroyFence(_device, _immFence, nullptr);  });
+
 
 }
 
@@ -644,6 +651,14 @@ void VulkanEngine::init_default_data() {
 
 }
 
+void VulkanEngine::init_renderables() {
+    std::string structurePath = { "..\\..\\assets\\structure.glb" };
+    auto structureFile = loadGltf(this, structurePath);
+
+    assert(structureFile.has_value());
+
+    loadedScenes["structure"] = *structureFile;
+}
 
 void VulkanEngine::cleanup()
 {
