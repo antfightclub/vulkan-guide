@@ -223,7 +223,8 @@ public:
 
 	//draw loop
 	void draw();
-	void draw_background(VkCommandBuffer cmd);
+	void draw_main(VkCommandBuffer cmd);
+	//void draw_background(VkCommandBuffer cmd);
 	void draw_geometry(VkCommandBuffer cmd);
 	void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView);
 
