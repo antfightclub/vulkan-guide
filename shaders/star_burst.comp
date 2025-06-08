@@ -44,8 +44,8 @@ float star_burst( vec2 p )
 	float k4 = 12.0;
     float k5 = 2.0;
     float k6 = 5.2;
-    float k7 = 4.0;
-    float k8 = 6.2;
+    float k7 = 10.0; // Was originally 4.0, increasing makes the "core" of the flash smaller
+    float k8 = 5.2; // was originally 6.2,  decreasing makes the "shroud" of the flash bigger
 	
 	float l  = length( p );
     float l2 = pow( l * k1, k2 );
