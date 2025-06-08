@@ -4,6 +4,8 @@ layout(rgba16f,set = 0, binding = 0) uniform image2D image;
 
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
+// Adapted from https://www.shadertoy.com/view/Md2SR3
+
 // Return random noise in the range [0.0, 1.0], as a function of x.
 float Noise2d( in vec2 x )
 {

@@ -428,6 +428,11 @@ void VulkanEngine::init_background_pipelines() {
         fmt::print("Error when building the compute shader \n");
     }
 
+    VkShaderModule flashInShader;
+    if (!vkutil::load_shader_module("../../shaders/flash_in.comp.spv", _device, &flashInShader)) {
+        fmt::print("Error when building the compute shader \n");
+    }
+
     VkPipelineShaderStageCreateInfo stageinfo{};
     stageinfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     stageinfo.pNext = nullptr;
