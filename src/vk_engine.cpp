@@ -586,12 +586,12 @@ void VulkanEngine::init_default_data() {
 }
 
 void VulkanEngine::init_renderables() {
-    std::string structurePath = { "..\\..\\assets\\structure.glb" };
-    auto structureFile = loadGltf(this, structurePath);
+    //std::string structurePath = { "..\\..\\assets\\structure.glb" };
+    //auto structureFile = loadGltf(this, structurePath);
 
-    assert(structureFile.has_value());
+    //assert(structureFile.has_value());
 
-    loadedScenes["structure"] = *structureFile;
+    //loadedScenes["structure"] = *structureFile;
 }
 
 void VulkanEngine::cleanup()
@@ -1138,7 +1138,7 @@ void VulkanEngine::update_scene()
 
     mainDrawContext.OpaqueSurfaces.clear();
 
-    loadedScenes["structure"]->Draw(glm::mat4{ 1.f }, mainDrawContext);
+    //loadedScenes["structure"]->Draw(glm::mat4{ 1.f }, mainDrawContext);
 
     sceneData.view = view;
     sceneData.proj = projection;
