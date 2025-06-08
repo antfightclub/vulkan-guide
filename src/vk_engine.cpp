@@ -137,11 +137,6 @@ void VulkanEngine::init_vulkan()
     allocatorInfo.instance = _instance;
     allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
     vmaCreateAllocator(&allocatorInfo, &_allocator);
-
-    _mainDeletionQueue.push_function([&]() {
-        vmaDestroyAllocator(_allocator);
-        });
-
 }
 
 void VulkanEngine::create_swapchain(uint32_t width, uint32_t height) {
@@ -643,15 +638,19 @@ void VulkanEngine::cleanup()
         loadedScenes.clear();
 
         // Free per-frame structures and deletion queue
-        for (int i = 0; i < FRAME_OVERLAP; i++) {
-            vkDestroyCommandPool(_device, _frames[i]._commandPool, nullptr);
+        //for (int i = 0; i < FRAME_OVERLAP; i++) {
+        //    vkDestroyCommandPool(_device, _frames[i]._commandPool, nullptr);
+        //
+        //    // Destroy sync objects
+        //    vkDestroyFence(_device, _frames[i]._renderFence, nullptr);
+        //    vkDestroySemaphore(_device, _frames[i]._renderSemaphore, nullptr);
+        //    vkDestroySemaphore(_device, _frames[i]._swapchainSemaphore, nullptr);
+        //
+        //    _frames[i]._deletionQueue.flush();
+        //}
 
-            // Destroy sync objects
-            vkDestroyFence(_device, _frames[i]._renderFence, nullptr);
-            vkDestroySemaphore(_device, _frames[i]._renderSemaphore, nullptr);
-            vkDestroySemaphore(_device, _frames[i]._swapchainSemaphore, nullptr);
-
-            _frames[i]._deletionQueue.flush();
+        for (auto& frame : _frames) {
+            frame._deletionQueue.flush();
         }
 
         for (auto& mesh : testMeshes) {
@@ -659,14 +658,17 @@ void VulkanEngine::cleanup()
             destroy_buffer(mesh->meshBuffers.vertexBuffer);
         }
 
-        metalRoughMaterial.clear_resources(_device);
+        _mainDeletionQueue.flush();
+        //metalRoughMaterial.clear_resources(_device);
 
         // Flush the global deletion queue
-        _mainDeletionQueue.flush();
 
         destroy_swapchain();
 
         vkDestroySurfaceKHR(_instance, _surface, nullptr);
+
+        vmaDestroyAllocator(_allocator);
+
         vkDestroyDevice(_device, nullptr);
 
         vkb::destroy_debug_utils_messenger(_instance, _debug_messenger);
