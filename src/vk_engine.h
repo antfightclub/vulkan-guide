@@ -215,6 +215,9 @@ public:
 
 	std::unordered_map<std::string, std::shared_ptr<LoadedGLTF>> loadedScenes;
 
+	float functionIndexer{ 0.f };
+	float timeSinceStart{ 0.f };
+
 	//initializes everything in the engine
 	void init();
 
@@ -229,6 +232,7 @@ public:
 	void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView);
 
 	void update_scene();
+	void update_background();
 
 	//run main loop
 	void run();

@@ -433,6 +433,11 @@ void VulkanEngine::init_background_pipelines() {
         fmt::print("Error when building the compute shader \n");
     }
 
+    VkShaderModule starburstShader;
+    if (!vkutil::load_shader_module("../../shaders/star_burst.comp.spv", _device, &starburstShader)) {
+        fmt::print("Error when building the compute shader \n");
+    }
+
     VkPipelineShaderStageCreateInfo stageinfo{};
     stageinfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     stageinfo.pNext = nullptr;
@@ -446,6 +451,7 @@ void VulkanEngine::init_background_pipelines() {
     computePipelineCreateInfo.layout = _gradientPipelineLayout;
     computePipelineCreateInfo.stage = stageinfo;
 
+    // Gradient
     ComputeEffect gradient;
     gradient.layout = _gradientPipelineLayout;
     gradient.name = "gradient";
@@ -468,16 +474,45 @@ void VulkanEngine::init_background_pipelines() {
 
     VK_CHECK(vkCreateComputePipelines(_device, VK_NULL_HANDLE, 1, &computePipelineCreateInfo, nullptr, &sky.pipeline));
 
-    // Add the 2 backgroundeffects into the array
+    // Change the shader module only to create the flashIn shader
+    computePipelineCreateInfo.stage.module = flashInShader;
+
+    ComputeEffect flashIn;
+    flashIn.name = "Flash In";
+    flashIn.data = {};
+    flashIn.data.data3 = glm::vec4(0.5, 0, 0, 0);
+
+    VK_CHECK(vkCreateComputePipelines(_device, VK_NULL_HANDLE, 1, &computePipelineCreateInfo, nullptr, &flashIn.pipeline));
+   
+    // Change the shader module only to create the starburst shader
+    computePipelineCreateInfo.stage.module = starburstShader;
+    
+    ComputeEffect starburst;
+    starburst.name = "Star burst";
+    starburst.data = {};
+    starburst.data.data1.x = 0.01;
+    starburst.data.data1.y = 0.5;
+
+    VK_CHECK(vkCreateComputePipelines(_device, VK_NULL_HANDLE, 1, &computePipelineCreateInfo, nullptr, &starburst.pipeline));
+
+
+
+    // Add the 3 backgroundeffects into the array
     backgroundEffects.push_back(gradient);
     backgroundEffects.push_back(sky);
+    backgroundEffects.push_back(flashIn);
+    backgroundEffects.push_back(starburst);
     
     // Destroy structures properly
     vkDestroyShaderModule(_device, gradientShader, nullptr);
     vkDestroyShaderModule(_device, skyShader, nullptr);
+    vkDestroyShaderModule(_device, flashInShader, nullptr);
+    vkDestroyShaderModule(_device, starburstShader, nullptr);
 
     _mainDeletionQueue.push_function([=]() {
         vkDestroyPipelineLayout(_device, _gradientPipelineLayout, nullptr);
+        vkDestroyPipeline(_device, starburst.pipeline, nullptr);
+        vkDestroyPipeline(_device, flashIn.pipeline, nullptr);
         vkDestroyPipeline(_device, sky.pipeline, nullptr);
         vkDestroyPipeline(_device, gradient.pipeline, nullptr);
         });
@@ -1160,6 +1195,20 @@ void VulkanEngine::update_scene()
     stats.scene_update_time = elapsed.count() / 1000.f;
 }
 
+float quaImpulse(float k, float x) {
+    return 2.0 * sqrtf(k) * x / (1.0f + k * x * x);
+}
+
+void VulkanEngine::update_background() {
+    float index = fmod(timeSinceStart*0.01, 10.0);
+    
+    float impulse = quaImpulse(64, index);
+
+
+    backgroundEffects[3].data.data1.x += stats.scene_update_time;
+    backgroundEffects[3].data.data1.y = 1.0f / impulse;
+}
+
 
 void VulkanEngine::run()
 {
@@ -1239,6 +1288,7 @@ void VulkanEngine::run()
         ImGui::Render();
 
         update_scene();
+        update_background();
 
         draw();
 
@@ -1248,6 +1298,7 @@ void VulkanEngine::run()
         // Convert to microseconds (integer), and then come back to milliseconds
         auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
         stats.frametime = elapsed.count() / 1000.f;
+        timeSinceStart += stats.frametime;
     }
 }
 
