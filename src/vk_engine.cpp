@@ -860,10 +860,6 @@ void VulkanEngine::draw_main(VkCommandBuffer cmd) {
 }
 
 void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
-    // Reset counters
-    stats.drawcall_count = 0;
-    stats.triangle_count = 0;
-
     std::vector<uint32_t> opaque_draws;
     opaque_draws.reserve(mainDrawContext.OpaqueSurfaces.size());
 
@@ -959,6 +955,10 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
         stats.drawcall_count++;
         stats.triangle_count += r.indexCount / 3;
         };
+
+    // Reset counters
+    stats.drawcall_count = 0;
+    stats.triangle_count = 0;
 
     for (auto& r : opaque_draws) {
         draw(mainDrawContext.OpaqueSurfaces[r]);
