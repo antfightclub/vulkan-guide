@@ -157,6 +157,10 @@ public:
 	FrameData _frames[FRAME_OVERLAP];
 	GPUSceneData sceneData;
 
+	uint32_t _swapchainImageCount{ 0 };
+	std::vector<VkSemaphore> _readyForPresentSemaphores;
+	uint32_t _swapchainImageIndex;
+
 	FrameData& get_current_frame() { return _frames[_frameNumber % FRAME_OVERLAP]; };
 
 	VkQueue _graphicsQueue;

@@ -158,6 +158,10 @@ void VulkanEngine::create_swapchain(uint32_t width, uint32_t height) {
     _swapchainImages = vkbSwapchain.get_images().value();
     _swapchainImageViews = vkbSwapchain.get_image_views().value();
     //fmt::println("New swapchain size is width {} and height {}", width, height);
+    
+    // Set _swapchainImageCount to the amount of swapchain images - used to initialize the same amount of 
+    // _readyForPresentSemaphores in init_sync_structures
+    VK_CHECK(vkGetSwapchainImagesKHR(_device, _swapchain, &_swapchainImageCount, nullptr));
 }
 
 void VulkanEngine::resize_swapchain()
@@ -315,6 +319,18 @@ void VulkanEngine::init_sync_structures()
             vkDestroySemaphore(_device, _frames[i]._swapchainSemaphore, nullptr);
             vkDestroySemaphore(_device, _frames[i]._renderSemaphore, nullptr);
             });
+    }
+
+    _readyForPresentSemaphores.resize(_swapchainImageCount);
+
+    for (int i = 0; i < _swapchainImageCount; i++) {
+        VkSemaphoreCreateInfo semaphoreCreateInfo = vkinit::semaphore_create_info();
+        VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_readyForPresentSemaphores[i]));
+
+        _mainDeletionQueue.push_function([=]() {
+            vkDestroySemaphore(_device, _readyForPresentSemaphores[i], nullptr);
+            });
+
     }
 
 
@@ -767,7 +783,7 @@ void VulkanEngine::draw()
     VkCommandBufferSubmitInfo cmdInfo = vkinit::command_buffer_submit_info(cmd);
 
     VkSemaphoreSubmitInfo waitInfo = vkinit::semaphore_submit_info(VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, get_current_frame()._swapchainSemaphore);
-    VkSemaphoreSubmitInfo signalInfo = vkinit::semaphore_submit_info(VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, get_current_frame()._renderSemaphore);
+    VkSemaphoreSubmitInfo signalInfo = vkinit::semaphore_submit_info(VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, _readyForPresentSemaphores[swapchainImageIndex]);
 
     VkSubmitInfo2 submit = vkinit::submit_info(&cmdInfo, &signalInfo, &waitInfo);
 
@@ -785,7 +801,7 @@ void VulkanEngine::draw()
     presentInfo.pSwapchains = &_swapchain;
     presentInfo.swapchainCount = 1;
 
-    presentInfo.pWaitSemaphores = &get_current_frame()._renderSemaphore;
+    presentInfo.pWaitSemaphores = &_readyForPresentSemaphores[swapchainImageIndex];
     presentInfo.waitSemaphoreCount = 1;
 
     presentInfo.pImageIndices = &swapchainImageIndex;
