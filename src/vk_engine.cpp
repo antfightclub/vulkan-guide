@@ -570,40 +570,6 @@ void VulkanEngine::init_imgui() {
 }
 
 void VulkanEngine::init_default_data() {
-    // Rectangle
-    std::array<Vertex, 4> rect_vertices;
-
-    rect_vertices[0].position = { 0.5,-0.5, 0 };
-    rect_vertices[1].position = { 0.5,0.5, 0 };
-    rect_vertices[2].position = { -0.5,-0.5, 0 };
-    rect_vertices[3].position = { -0.5,0.5, 0 };
-
-    rect_vertices[0].color = { 0,0, 0,1 };
-    rect_vertices[1].color = { 0.5,0.5,0.5 ,1 };
-    rect_vertices[2].color = { 1,0, 0,1 };
-    rect_vertices[3].color = { 0,1, 0,1 };
-
-    rect_vertices[0].uv_x = 1;
-    rect_vertices[0].uv_y = 0;
-    rect_vertices[1].uv_x = 0;
-    rect_vertices[1].uv_y = 0;
-    rect_vertices[2].uv_x = 1;
-    rect_vertices[2].uv_y = 1;
-    rect_vertices[3].uv_x = 0;
-    rect_vertices[3].uv_y = 1;
-
-    std::array<uint32_t, 6> rect_indices;
-
-    rect_indices[0] = 0;
-    rect_indices[1] = 1;
-    rect_indices[2] = 2;
-
-    rect_indices[3] = 2;
-    rect_indices[4] = 1;
-    rect_indices[5] = 3;
-
-    rectangle = upload_mesh(rect_indices, rect_vertices);
-
 
     //3 default textures, white, grey, black. 1 pixel each
     uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
@@ -640,6 +606,15 @@ void VulkanEngine::init_default_data() {
     sampl.minFilter = VK_FILTER_LINEAR;
     vkCreateSampler(_device, &sampl, nullptr, &_defaultSamplerLinear);
 
+    _mainDeletionQueue.push_function([&]() {
+        vkDestroySampler(_device, _defaultSamplerNearest, nullptr);
+        vkDestroySampler(_device, _defaultSamplerLinear, nullptr);
+
+        destroy_image(_whiteImage);
+        destroy_image(_greyImage);
+        destroy_image(_blackImage);
+        destroy_image(_errorCheckerboardImage);
+        });
 }
 
 void VulkanEngine::init_renderables() {
@@ -662,6 +637,8 @@ void VulkanEngine::cleanup()
         for (auto& frame : _frames) {
             frame._deletionQueue.flush();
         }
+
+        metalRoughMaterial.clear_resources(_device);
 
         _mainDeletionQueue.flush();
 
