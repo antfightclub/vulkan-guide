@@ -436,6 +436,11 @@ void VulkanEngine::init_background_pipelines() {
         fmt::print("Error when building the compute shader \n");
     }
 
+    VkShaderModule movingStarfieldShader;
+    if (!vkutil::load_shader_module("../../shaders/moving_starfield.comp.spv", _device, &movingStarfieldShader)) {
+        fmt::print("Error when building the compute shader \n");
+    }
+
     VkPipelineShaderStageCreateInfo stageinfo{};
     stageinfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     stageinfo.pNext = nullptr;
@@ -493,6 +498,13 @@ void VulkanEngine::init_background_pipelines() {
 
     VK_CHECK(vkCreateComputePipelines(_device, VK_NULL_HANDLE, 1, &computePipelineCreateInfo, nullptr, &starburst.pipeline));
 
+    computePipelineCreateInfo.stage.module = movingStarfieldShader;
+
+    ComputeEffect movingStarfield;
+    movingStarfield.name = "Moving star field";
+    movingStarfield.data = {};
+
+    VK_CHECK(vkCreateComputePipelines(_device, VK_NULL_HANDLE, 1, &computePipelineCreateInfo, nullptr, &movingStarfield.pipeline));
 
 
     // Add the 3 backgroundeffects into the array
@@ -500,16 +512,19 @@ void VulkanEngine::init_background_pipelines() {
     backgroundEffects.push_back(sky);
     backgroundEffects.push_back(flashIn);
     backgroundEffects.push_back(starburst);
+    backgroundEffects.push_back(movingStarfield);
     
     // Destroy structures properly
     vkDestroyShaderModule(_device, gradientShader, nullptr);
     vkDestroyShaderModule(_device, skyShader, nullptr);
     vkDestroyShaderModule(_device, flashInShader, nullptr);
     vkDestroyShaderModule(_device, starburstShader, nullptr);
+    vkDestroyShaderModule(_device, movingStarfieldShader, nullptr);
 
     // Add pipelines to deletion queue
     _mainDeletionQueue.push_function([=]() {
         vkDestroyPipelineLayout(_device, _gradientPipelineLayout, nullptr);
+        vkDestroyPipeline(_device, movingStarfield.pipeline, nullptr);
         vkDestroyPipeline(_device, starburst.pipeline, nullptr);
         vkDestroyPipeline(_device, flashIn.pipeline, nullptr);
         vkDestroyPipeline(_device, sky.pipeline, nullptr);
@@ -1198,6 +1213,8 @@ void VulkanEngine::update_background() {
 
     backgroundEffects[3].data.data1.x += stats.scene_update_time;
     backgroundEffects[3].data.data1.y = 1.0f / impulse;
+
+    backgroundEffects[4].data.data1.x += stats.scene_update_time;
 }
 
 
