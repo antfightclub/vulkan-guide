@@ -323,14 +323,15 @@ void VulkanEngine::init_sync_structures()
 
 void VulkanEngine::init_descriptors() {
     // Create a descriptor pool that will hold 10 sets with 1 image each
-    std::vector<DescriptorAllocatorGrowable::PoolSizeRatio> sizes =
+    std::vector<DescriptorAllocator::PoolSizeRatio> sizes =
     {
         {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 3},
         {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,3},
         {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 3},
     };
 
-    globalDescriptorAllocator.init(_device, 10, sizes);
+    globalDescriptorAllocator.init_pool(_device, 10, sizes);
+    _mainDeletionQueue.push_function([&]() {vkDestroyDescriptorPool(_device, globalDescriptorAllocator.pool, nullptr); });
 
     // Make the descriptor set layout for our compute draw
     {
@@ -338,18 +339,17 @@ void VulkanEngine::init_descriptors() {
         builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
         _drawImageDescriptorLayout = builder.build(_device, VK_SHADER_STAGE_COMPUTE_BIT);
     }
-    // Descriptor layout for single images
-    {
-        DescriptorLayoutBuilder builder;
-        builder.add_binding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-        _singleImageDescriptorLayout = builder.build(_device, VK_SHADER_STAGE_FRAGMENT_BIT);
-    }
     // Descriptor layout for gpu scene data (uniform buffer)
     {
         DescriptorLayoutBuilder builder;
         builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
         _gpuSceneDataDescriptorLayout = builder.build(_device, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT);
     }
+
+    _mainDeletionQueue.push_function([&]() {
+        vkDestroyDescriptorSetLayout(_device, _drawImageDescriptorLayout, nullptr);
+        vkDestroyDescriptorSetLayout(_device, _gpuSceneDataDescriptorLayout, nullptr);
+        });
 
     _drawImageDescriptors = globalDescriptorAllocator.allocate(_device, _drawImageDescriptorLayout);
 
@@ -359,16 +359,6 @@ void VulkanEngine::init_descriptors() {
 
         writer.update_set(_device, _drawImageDescriptors);
     }
-
-    //make sure both the descriptor allocator and the new layout get cleaned up properly
-    _mainDeletionQueue.push_function([&]() {
-        globalDescriptorAllocator.destroy_pools(_device);
-
-        vkDestroyDescriptorSetLayout(_device, _drawImageDescriptorLayout, nullptr);
-        vkDestroyDescriptorSetLayout(_device, _singleImageDescriptorLayout, nullptr);
-        vkDestroyDescriptorSetLayout(_device, _gpuSceneDataDescriptorLayout, nullptr);
-        });
-
 
     for (int i = 0; i < FRAME_OVERLAP; i++) {
         // create a descriptor pool
@@ -579,9 +569,6 @@ void VulkanEngine::init_imgui() {
 }
 
 void VulkanEngine::init_default_data() {
-    // Test meshes
-    testMeshes = loadGltfMeshes(this, "..\\..\\assets\\basicmesh.glb").value();
-
     // Test images
     //3 default textures, white, grey, black. 1 pixel each
     uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
@@ -661,7 +648,6 @@ void VulkanEngine::cleanup()
         _mainDeletionQueue.flush();
         //metalRoughMaterial.clear_resources(_device);
 
-        // Flush the global deletion queue
 
         destroy_swapchain();
 
