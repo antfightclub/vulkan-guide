@@ -500,6 +500,8 @@ void VulkanEngine::init_background_pipelines() {
 
     computePipelineCreateInfo.stage.module = movingStarfieldShader;
 
+    
+    // Alternatively, this https://www.shadertoy.com/view/tst3WS looks promising too
     ComputeEffect movingStarfield;
     movingStarfield.name = "Moving star field";
     movingStarfield.data = {};
