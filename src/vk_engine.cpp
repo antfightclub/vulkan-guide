@@ -332,9 +332,6 @@ void VulkanEngine::init_sync_structures()
             });
 
     }
-
-
-
 }
 
 void VulkanEngine::init_descriptors() {
