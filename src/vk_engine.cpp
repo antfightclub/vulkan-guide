@@ -1215,10 +1215,10 @@ void VulkanEngine::run()
             if (e.type == SDL_QUIT)
                 bQuit = true;
             
-            mainCamera.processSDLEvent(e);
-            ImGui_ImplSDL2_ProcessEvent(&e);
-
             if (e.type == SDL_WINDOWEVENT) {
+                if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
+                    resize_requested = true;
+                }
                 if (e.window.event == SDL_WINDOWEVENT_MINIMIZED) {
                     stop_rendering = true;
                 }
@@ -1226,6 +1226,8 @@ void VulkanEngine::run()
                     stop_rendering = false;
                 }
             }
+
+            mainCamera.processSDLEvent(e);
 
             // Send SDL event to IMGUI for handling
             ImGui_ImplSDL2_ProcessEvent(&e);
