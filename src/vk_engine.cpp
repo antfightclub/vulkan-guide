@@ -655,12 +655,12 @@ void VulkanEngine::init_renderables() {
 
     //loadedScenes["structure"] = *structureFile;
 
-    std::string sponzaPath = { "..\\..\\assets\\sponza\\sponza.glb" };
-    auto sponzaFile = loadGltf(this, sponzaPath);
+    //std::string sponzaPath = { "..\\..\\assets\\sponza\\sponza.glb" };
+    //auto sponzaFile = loadGltf(this, sponzaPath);
     
-    assert(sponzaFile.has_value());
+    //assert(sponzaFile.has_value());
     
-    loadedScenes["sponza"] = *sponzaFile;
+    //loadedScenes["sponza"] = *sponzaFile;
 }
 
 void VulkanEngine::cleanup()
@@ -1193,7 +1193,7 @@ void VulkanEngine::update_scene()
 
     mainDrawContext.OpaqueSurfaces.clear();
 
-    loadedScenes["sponza"]->Draw(glm::mat4{ 1.f }, mainDrawContext);
+    //loadedScenes["sponza"]->Draw(glm::mat4{ 1.f }, mainDrawContext);
     //loadedScenes["structure"]->Draw(glm::mat4{ 1.f }, mainDrawContext);
 
     sceneData.view = view;
