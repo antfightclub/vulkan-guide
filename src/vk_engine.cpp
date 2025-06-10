@@ -69,7 +69,7 @@ void VulkanEngine::init()
     
 
     mainCamera.velocity = glm::vec3(0.f);
-    mainCamera.position = glm::vec3(30.f, -00.f, -085.f);
+    mainCamera.position = glm::vec3(0.f, 0.f, 0.f);
     mainCamera.pitch = 0;
     mainCamera.yaw = 0;
 
@@ -654,6 +654,13 @@ void VulkanEngine::init_renderables() {
     //assert(structureFile.has_value());
 
     //loadedScenes["structure"] = *structureFile;
+
+    std::string sponzaPath = { "..\\..\\assets\\sponza\\sponza.glb" };
+    auto sponzaFile = loadGltf(this, sponzaPath);
+    
+    assert(sponzaFile.has_value());
+    
+    loadedScenes["sponza"] = *sponzaFile;
 }
 
 void VulkanEngine::cleanup()
@@ -1186,6 +1193,7 @@ void VulkanEngine::update_scene()
 
     mainDrawContext.OpaqueSurfaces.clear();
 
+    loadedScenes["sponza"]->Draw(glm::mat4{ 1.f }, mainDrawContext);
     //loadedScenes["structure"]->Draw(glm::mat4{ 1.f }, mainDrawContext);
 
     sceneData.view = view;
@@ -1193,7 +1201,7 @@ void VulkanEngine::update_scene()
     sceneData.viewproj = projection * view;
   
     //some default lighting parameters
-    sceneData.ambientColor = glm::vec4(.1f);
+    sceneData.ambientColor = glm::vec4(1.f);
     sceneData.sunlightColor = glm::vec4(1.f);
     sceneData.sunlightDirection = glm::vec4(0, 1, 0.5, 1.f);
 
